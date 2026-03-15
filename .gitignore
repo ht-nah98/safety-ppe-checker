@@ -1,0 +1,65 @@
+# ===============================================
+# Safety PPE Checker — .gitignore
+# ===============================================
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# === Node / Frontend ===
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# === Data & Model Weights (LARGE FILES) ===
+data/raw/
+data/processed/
+models_weights/*.pt
+*.pt
+*.onnx
+
+# === Database ===
+*.db
+*.sqlite3
+
+# === Static results (generated at runtime) ===
+backend/static/results/
+backend/static/originals/
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Environment ===
+.env
+.env.local
+.env.production
+
+# === Docker ===
+docker-compose.override.yml
+
+# === Logs ===
+*.log
+logs/
+
+# === Jupyter (if any) ===
+.ipynb_checkpoints/
+
+# === Ultralytics ===
+runs/

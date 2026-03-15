@@ -1,0 +1,16 @@
+# Dataset configuration for YOLOv8 training
+# Reference: DATA-STRATEGY.md Section 6
+
+path: ./data/processed
+train: images/train
+val:   images/val
+test:  images/test
+
+# 5 PPE classes (project standard)
+nc: 5
+names:
+  0: helmet
+  1: reflective_vest
+  2: gloves
+  3: safety_boots
+  4: safety_glasses
