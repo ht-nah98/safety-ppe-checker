@@ -6,7 +6,7 @@ Matches: TP-CV-001 Section 2.1
 """
 
 from pydantic import BaseModel, Field
-from typing import Dict, Optional
+from typing import Dict, List, Optional, Any
 from datetime import datetime
 
 
@@ -19,6 +19,15 @@ class PPEItemResult(BaseModel):
     )
 
 
+class DebugInfo(BaseModel):
+    """Raw detection debug data — for development visibility."""
+    model_path: str
+    inference_conf_threshold: float
+    raw_detection_count: int
+    raw_detections: List[Dict[str, Any]]
+    image_size: List[int]
+
+
 class InspectionResponse(BaseModel):
     """Response from POST /api/v1/check-ppe"""
     inspection_id: str = Field(description="Unique inspection UUID")
@@ -28,6 +37,8 @@ class InspectionResponse(BaseModel):
     items: Dict[str, PPEItemResult] = Field(
         description="Detection result for each of the 5 PPE classes"
     )
+    created_at: Optional[datetime] = None
+    debug_info: Optional[DebugInfo] = None
 
     model_config = {
         "json_schema_extra": {

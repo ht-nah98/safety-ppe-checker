@@ -117,18 +117,28 @@ class CVEngine:
         }
         boxes_to_draw = []
 
+        raw_detections = []  # All detections before threshold filter
         for box in results.boxes:
             cls_id = int(box.cls[0])
             cls_name = self.model.names[cls_id]
             conf = float(box.conf[0])
 
-            # Map dataset class → project class
             ppe_class = PPE_CLASS_MAP.get(cls_name)
+            threshold = CONFIDENCE_THRESHOLDS.get(ppe_class, 0.50) if ppe_class else None
+
+            raw_detections.append({
+                "raw_class": cls_name,
+                "ppe_class": ppe_class,
+                "confidence": round(conf, 3),
+                "threshold": threshold,
+                "passed_threshold": (ppe_class is not None and conf >= threshold),
+            })
+
+            # Map dataset class → project class
             if ppe_class is None:
                 continue  # Skip classes we don't care about (e.g., "Person")
 
             # Check against per-class threshold
-            threshold = CONFIDENCE_THRESHOLDS.get(ppe_class, 0.50)
             if conf >= threshold:
                 # Keep the detection with highest confidence
                 if not items[ppe_class]["detected"] or conf > items[ppe_class]["confidence"]:
@@ -152,7 +162,8 @@ class CVEngine:
             f"Inspection {inspection_id[:8]}: "
             f"{'PASS' if overall_pass else 'FAIL'} "
             f"({processing_ms}ms) "
-            f"Detected: {[k for k, v in items.items() if v['detected']]}"
+            f"Raw detections: {len(raw_detections)} | "
+            f"Detected PPE: {[k for k, v in items.items() if v['detected']]}"
         )
 
         return {
@@ -161,6 +172,13 @@ class CVEngine:
             "annotated_image_path": f"static/results/{inspection_id}_annotated.jpg",
             "original_image_path": original_path,
             "processing_time_ms": processing_ms,
+            "debug_info": {
+                "model_path": str(self.model.model_name if hasattr(self.model, 'model_name') else "unknown"),
+                "inference_conf_threshold": INFERENCE_CONF,
+                "raw_detection_count": len(raw_detections),
+                "raw_detections": raw_detections,
+                "image_size": list(img_resized.shape[:2]),
+            },
         }
 
     def _resize(self, img: np.ndarray, max_size: int) -> np.ndarray:

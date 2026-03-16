@@ -2,9 +2,9 @@
 # Reference: DATA-STRATEGY.md Section 6
 
 path: ./data/processed
-train: images/train
-val:   images/val
-test:  images/test
+train: train/images
+val:   val/images
+test:  test/images
 
 # 5 PPE classes (project standard)
 nc: 5

@@ -9,6 +9,7 @@ Reference: TP-CV-001 Section 2.1
 
 import uuid
 import logging
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from sqlalchemy.orm import Session
@@ -96,4 +97,6 @@ async def check_ppe(
         processing_time_ms=result["processing_time_ms"],
         annotated_image_url=f"/static/results/{inspection_id}_annotated.jpg",
         items=result["items"],
+        created_at=datetime.now(timezone.utc),
+        debug_info=result.get("debug_info"),
     )
