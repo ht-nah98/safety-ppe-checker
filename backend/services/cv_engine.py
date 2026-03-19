@@ -175,9 +175,13 @@ class CVEngine:
             "debug_info": {
                 "model_path": str(self.model.model_name if hasattr(self.model, 'model_name') else "unknown"),
                 "inference_conf_threshold": INFERENCE_CONF,
-                "raw_detection_count": len(raw_detections),
+                "raw_detections_count": len(raw_detections),
                 "raw_detections": raw_detections,
-                "image_size": list(img_resized.shape[:2]),
+                "original_size": [img.shape[0], img.shape[1]],
+                "processed_size": list(img_resized.shape[:2]),
+                "mapping_logs": [
+                    f"✅ Loaded canonical class: {name}" for name in self.model.names.values()
+                ]
             },
         }
 

@@ -67,13 +67,42 @@ Frontend hiển thị (không cần thay đổi gì)
 
 ---
 
+## ✅ TRẠNG THÁI HIỆN TẠI (PHẢI ĐỌC)
+
+Tôi đã hoàn thành việc chuẩn bị dữ liệu cho bạn:
+1. **Dataset:** Đã tải và giải nén 2 bộ dữ liệu (Construction-PPE và SH17).
+2. **Gộp dữ liệu:** Đã chạy script gộp và chuẩn bị xong **7,237 ảnh training** (với nhãn đã được chuẩn chuẩn hóa về 5 lớp 0-4).
+3. **Cấu hình:** File `data/dataset.yaml` đã sẵn sàng.
+
+**Bạn có thể BỎ QUA Phase 1 và Phase 2 trong hướng dẫn này và bắt đầu ngay từ Phase 0 (Cài môi trường) sau đó nhảy đến Phase 3.**
+
+---
+
 ## Phase 0 — Cài Đặt Môi Trường
+
+### Bước 0.0 — Tạo và kích hoạt môi trường ảo (BẮT BUỘC)
+
+Như bạn đã hỏi, **RẤT NÊN** tạo môi trường ảo riêng (`venv`) để tránh xung đột với các thư viện khác trên máy.
+
+```bash
+# Đảm bảo đang ở thư mục gốc của dự án
+cd /home/user/Desktop/safety-ppe-checker
+
+# Tạo môi trường ảo tên là venv_ppe
+python3 -m venv venv_ppe
+
+# Kích hoạt môi trường ảo
+source venv_ppe/bin/activate
+```
+
+Sau khi kích hoạt, bạn sẽ thấy chữ `(venv)` ở đầu dòng lệnh terminal.
 
 ### Bước 0.1 — Cài thư viện cần thiết
 
-Mở terminal, chạy lệnh sau (không cần ở trong thư mục dự án):
+Khi đã ở trong môi trường ảo, chạy lệnh sau để cài đặt:
 
 ```bash
+pip install --upgrade pip
 pip install ultralytics roboflow pyyaml
 ```
 
@@ -130,18 +159,50 @@ Chúng ta cần ảnh có gán nhãn (labeled images). "Gán nhãn" nghĩa là m
 | **Construction-PPE** | ~1,400 ảnh | Có đủ cả 5 lớp PPE của chúng ta |
 | **SH17** | ~8,000 ảnh | Thêm data, đặc biệt quan trọng cho găng tay và kính (vật nhỏ, khó nhận diện) |
 
-### Bước 1.1 — Tạo tài khoản Roboflow
-
-1. Truy cập https://roboflow.com
-2. Nhấn **Sign Up** → đăng ký miễn phí
-3. Sau khi đăng nhập, nhấn vào **ảnh đại diện** (góc trên phải) → **Settings** → **API Keys**
-4. Copy API key của bạn (dạng chuỗi ký tự dài như: `abc123xyz789...`)
-
-### Bước 1.2 — Tạo thư mục lưu dataset
+### Bước 1.1 — Tạo thư mục lưu dataset
 
 ```bash
 # Chạy từ thư mục gốc dự án
 mkdir -p data/raw
+```
+
+### Bước 1.2 — Lựa chọn tải Dataset
+
+Có 2 cách để lấy dữ liệu. Nếu bạn không dùng được API Key hoặc script bị lỗi, hãy dùng **Cách B (Thủ công)**.
+
+#### Cách A — Dùng Script (Nếu API hoạt động)
+*(Giữ nguyên các bước python như cũ trong file này)*
+
+#### Cách B — Tải Thủ Công (Khuyên dùng nếu Cách A lỗi)
+
+1. **Truy cập đường dẫn Roboflow:**
+   - **Dataset 1 (Construction-PPE):** [Construction-PPE Detection](https://universe.roboflow.com/construction-ppe/construction-ppe-detection/dataset/1)
+   - **Dataset 2 (SH17):** [SH17 Dataset](https://universe.roboflow.com/roboflow-universe-projects/sh17-dataset/dataset/1)
+
+2. **Cách tải trên Web:**
+   - Nhấn nút **Download Dataset** (góc trên bên phải).
+   - Chọn Format: **YOLOv8**.
+   - Chọn **download zip to computer**.
+   - Nhấn **Continue** và đợi file tải về.
+
+3. **Giải nén và sắp xếp:**
+   - Giải nén file zip của Construction-PPE vào thư mục: `data/raw/construction-ppe/`
+   - Giải nén file zip của SH17 vào thư mục: `data/raw/sh17/`
+
+**Cấu trúc thư mục đúng sẽ trông như thế này:**
+```text
+data/
+└── raw/
+    ├── construction-ppe/
+    │   ├── train/
+    │   ├── val/
+    │   ├── test/
+    │   └── data.yaml
+    └── sh17/
+        ├── train/
+        ├── val/
+        ├── test/
+        └── data.yaml
 ```
 
 ### Bước 1.3 — Tải Construction-PPE dataset

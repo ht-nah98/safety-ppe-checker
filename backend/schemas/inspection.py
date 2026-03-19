@@ -23,9 +23,13 @@ class DebugInfo(BaseModel):
     """Raw detection debug data — for development visibility."""
     model_path: str
     inference_conf_threshold: float
-    raw_detection_count: int
+    raw_detections_count: int
     raw_detections: List[Dict[str, Any]]
-    image_size: List[int]
+    original_size: List[int]
+    processed_size: List[int]
+    mapping_logs: Optional[List[str]] = None
+
+    model_config = {"protected_namespaces": ()}
 
 
 class InspectionResponse(BaseModel):

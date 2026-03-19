@@ -43,13 +43,19 @@ MODEL_FALLBACK_PATH = str(MODELS_DIR / "yolov8n.pt")
 # Source: DATA-STRATEGY.md Section 5
 # =============================================================
 PPE_CLASS_MAP = {
-    # Construction-PPE dataset (Ultralytics) — PRIMARY
-    "helmet":   "helmet",
+    # Project Standards (Canonical Names)
+    "helmet":          "helmet",
+    "reflective_vest": "reflective_vest",
+    "gloves":          "gloves",
+    "safety_boots":    "safety_boots",
+    "safety_glasses":  "safety_glasses",
+    
+    # Construction-PPE dataset (Legacy)
     "vest":     "reflective_vest",
-    "gloves":   "gloves",
     "boots":    "safety_boots",
     "goggles":  "safety_glasses",
-    # SH17 dataset — SUPPLEMENT
+    
+    # SH17 dataset (Legacy)
     "Helmet":        "helmet",
     "Safety-vest":   "reflective_vest",
     "Gloves":        "gloves",

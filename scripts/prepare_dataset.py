@@ -59,25 +59,29 @@ SPLITS = ["train", "val", "test"]
 #   12: no-gloves    13: ...
 #   (exact indices vary — re-verify from data.yaml after download)
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# CLASS_REMAP: (dataset_name, original_class_id) → canonical_class_id
+#
+# Target Canonical classes:
+#   0: helmet
+#   1: reflective_vest
+#   2: gloves
+#   3: safety_boots
+#   4: safety_glasses
+# ---------------------------------------------------------------------------
 CLASS_REMAP: dict[tuple[str, int], int] = {
     # --- Construction-PPE ---
-    ("construction-ppe", 0): 0,   # helmet          → helmet
-    # ("construction-ppe", 1): None  # no_helmet      → skip (negative)
-    ("construction-ppe", 2): 1,   # vest            → reflective_vest
-    # ("construction-ppe", 3): None  # no_vest        → skip
-    ("construction-ppe", 4): 2,   # gloves          → gloves
-    # ("construction-ppe", 5): None  # no_gloves      → skip
-    ("construction-ppe", 6): 3,   # boots           → safety_boots
-    ("construction-ppe", 7): 4,   # glasses/goggles → safety_glasses
+    ("construction-ppe", 0): 3,   # boots  → safety_boots
+    ("construction-ppe", 1): 2,   # gloves → gloves
+    ("construction-ppe", 2): 0,   # helmet → helmet
+    ("construction-ppe", 4): 1,   # vest   → reflective_vest
 
     # --- SH17 ---
-    # Re-check these after downloading: run `cat data/raw/sh17/data.yaml`
-    ("sh17", 0): 0,   # hard-hat    → helmet
-    ("sh17", 1): 2,   # gloves      → gloves
-    ("sh17", 7): 3,   # shoes       → safety_boots
-    ("sh17", 9): 1,   # safety-vest → reflective_vest
-    # safety_glasses / goggles: SH17 may not have this class;
-    # add entry here once you confirm from sh17/data.yaml
+    ("sh17", 8): 4,               # glasses     → safety_glasses
+    ("sh17", 9): 2,               # gloves      → gloves
+    ("sh17", 10): 0,              # helmet      → helmet
+    ("sh17", 14): 3,              # shoes       → safety_boots
+    ("sh17", 16): 1,              # safety-vest → reflective_vest
 }
 
 
@@ -95,8 +99,17 @@ def print_class_table(dataset_name: str, data: dict) -> None:
     names = data.get("names", [])
     if isinstance(names, dict):
         items = sorted(names.items())
-    else:
+    elif names:
         items = list(enumerate(names))
+    else:
+        # Fallback for SH17 which lacks data.yaml
+        if dataset_name == "sh17":
+            items = [
+                (8, "glasses"), (9, "gloves"), (10, "helmet"), (14, "shoes"), (16, "safety-vest")
+            ]
+        else:
+            items = []
+
     logger.info("  %s classes:", dataset_name)
     for idx, name in items:
         mapped = CLASS_REMAP.get((dataset_name, int(idx)))
@@ -108,9 +121,11 @@ def remap_label_file(src: Path, dst: Path, dataset_name: str) -> bool:
     """
     Remap class IDs in a YOLO .txt label file.
     Returns True if the output file has at least one valid annotation.
-    Skips (returns False) if no remapped annotations exist.
     """
     lines_out: list[str] = []
+    if not src.exists():
+        return False
+        
     with open(src) as f:
         for line in f:
             parts = line.strip().split()
@@ -129,31 +144,31 @@ def remap_label_file(src: Path, dst: Path, dataset_name: str) -> bool:
     return False
 
 
-def process_dataset(dataset_name: str, dataset_root: Path) -> dict[str, int]:
-    """
-    Walk train/val/test splits of one raw dataset, remap labels,
-    and copy matching images to data/processed/.
-
-    Returns a dict of counts per split: {"train": N, "val": N, "test": N}
-    """
+def process_dataset_roboflow(dataset_name: str, dataset_root: Path) -> dict[str, int]:
+    """Process datasets with train/valid/test subdirectories (Construction-PPE)."""
     counts: dict[str, int] = {}
+    roboflow_splits = {
+        "train": "train",
+        "val":   "valid",  # Roboflow usually uses 'valid'
+        "test":  "test"
+    }
 
-    for split in SPLITS:
-        img_src_dir = dataset_root / split / "images"
-        lbl_src_dir = dataset_root / split / "labels"
+    for target_split, source_split in roboflow_splits.items():
+        img_src_dir = dataset_root / source_split / "images"
+        lbl_src_dir = dataset_root / source_split / "labels"
 
-        # Some exports put images/labels at the root split folder
         if not img_src_dir.exists():
-            img_src_dir = dataset_root / split
-            lbl_src_dir = dataset_root / split
+            # Try flat source_split if images/ are not nested
+            img_src_dir = dataset_root / source_split
+            lbl_src_dir = dataset_root / source_split
 
         if not img_src_dir.exists():
-            logger.warning("  No %s split found at %s — skipping", split, img_src_dir)
-            counts[split] = 0
+            logger.warning("  No %s split found at %s", source_split, img_src_dir)
+            counts[target_split] = 0
             continue
 
-        img_dst_dir = OUT_DIR / split / "images"
-        lbl_dst_dir = OUT_DIR / split / "labels"
+        img_dst_dir = OUT_DIR / target_split / "images"
+        lbl_dst_dir = OUT_DIR / target_split / "labels"
         img_dst_dir.mkdir(parents=True, exist_ok=True)
         lbl_dst_dir.mkdir(parents=True, exist_ok=True)
 
@@ -165,22 +180,65 @@ def process_dataset(dataset_name: str, dataset_root: Path) -> dict[str, int]:
                 continue
 
             lbl_path = lbl_src_dir / img_path.with_suffix(".txt").name
-            if not lbl_path.exists():
-                continue  # no annotation → skip
-
-            # Unique destination name to avoid collisions across datasets
             unique_stem = f"{dataset_name}_{img_path.stem}"
-            dst_img = img_dst_dir / f"{unique_stem}{img_path.suffix}"
             dst_lbl = lbl_dst_dir / f"{unique_stem}.txt"
+            dst_img = img_dst_dir / f"{unique_stem}{img_path.suffix}"
 
-            has_valid = remap_label_file(lbl_path, dst_lbl, dataset_name)
-            if has_valid:
+            if remap_label_file(lbl_path, dst_lbl, dataset_name):
                 shutil.copy2(img_path, dst_img)
                 n_copied += 1
 
+        counts[target_split] = n_copied
+        logger.info("  %-20s %-5s → %d images", dataset_name, target_split, n_copied)
+
+    return counts
+
+
+def process_dataset_flat(dataset_name: str, dataset_root: Path) -> dict[str, int]:
+    """Process flat datasets with file lists (SH17)."""
+    counts: dict[str, int] = {}
+    split_files = {
+        "train": dataset_root / "train_files.txt",
+        "val":   dataset_root / "val_files.txt",
+    }
+    
+    img_src_dir = dataset_root / "images"
+    lbl_src_dir = dataset_root / "labels"
+
+    for split, list_file in split_files.items():
+        if not list_file.exists():
+            logger.warning("  Split list file %s not found", list_file)
+            counts[split] = 0
+            continue
+
+        img_dst_dir = OUT_DIR / split / "images"
+        lbl_dst_dir = OUT_DIR / split / "labels"
+        img_dst_dir.mkdir(parents=True, exist_ok=True)
+        lbl_dst_dir.mkdir(parents=True, exist_ok=True)
+
+        n_copied = 0
+        with open(list_file) as f:
+            for line in f:
+                img_name = line.strip()
+                if not img_name:
+                    continue
+                
+                img_path = img_src_dir / img_name
+                lbl_path = lbl_src_dir / Path(img_name).with_suffix(".txt").name
+                
+                unique_stem = f"{dataset_name}_{Path(img_name).stem}"
+                dst_lbl = lbl_dst_dir / f"{unique_stem}.txt"
+                dst_img = img_dst_dir / f"{unique_stem}{img_path.suffix}"
+
+                if remap_label_file(lbl_path, dst_lbl, dataset_name):
+                    if img_path.exists():
+                        shutil.copy2(img_path, dst_img)
+                        n_copied += 1
+
         counts[split] = n_copied
         logger.info("  %-20s %-5s → %d images", dataset_name, split, n_copied)
-
+    
+    counts["test"] = 0 # SH17 didn't specify test split in text files
     return counts
 
 
@@ -194,11 +252,14 @@ def validate_output() -> bool:
                 parts = line.strip().split()
                 if not parts:
                     continue
-                cls_id = int(parts[0])
-                if cls_id < 0 or cls_id > 4:
-                    bad_files.append(lbl_file)
-                    logger.error("  Bad class ID %d in %s (line %d)", cls_id, lbl_file, i)
-                    break
+                try:
+                    cls_id = int(parts[0])
+                    if cls_id < 0 or cls_id > 4:
+                        bad_files.append(lbl_file)
+                        logger.error("  Bad class ID %d in %s (line %d)", cls_id, lbl_file, i)
+                        break
+                except ValueError:
+                    continue
     if bad_files:
         logger.error("Validation FAILED: %d files with out-of-range class IDs", len(bad_files))
         return False
@@ -222,34 +283,6 @@ def print_summary(all_counts: dict[str, dict[str, int]]) -> None:
 
 
 def main() -> int:
-    datasets = {
-        "construction-ppe": RAW_DIR / "construction-ppe",
-        "sh17":             RAW_DIR / "sh17",
-    }
-
-    # Check which datasets are available
-    available = {name: path for name, path in datasets.items() if path.exists()}
-    missing = set(datasets) - set(available)
-    if missing:
-        logger.warning(
-            "The following datasets are not yet downloaded: %s\n"
-            "  Download them to data/raw/<name>/ in YOLOv8 format from Roboflow,\n"
-            "  then re-run this script.",
-            ", ".join(sorted(missing)),
-        )
-    if not available:
-        logger.error("No datasets found. Nothing to process.")
-        return 1
-
-    # Print class tables for verification before touching anything
-    logger.info("=== Class mapping verification ===")
-    for ds_name, ds_path in available.items():
-        data = load_dataset_yaml(ds_path)
-        if data:
-            print_class_table(ds_name, data)
-        else:
-            logger.warning("  No data.yaml found in %s", ds_path)
-
     # Clear previous output to avoid stale data
     if OUT_DIR.exists():
         logger.info("\nRemoving existing data/processed/ ...")
@@ -259,9 +292,22 @@ def main() -> int:
     # Process each dataset
     logger.info("\n=== Processing datasets ===")
     all_counts: dict[str, dict[str, int]] = {}
-    for ds_name, ds_path in available.items():
-        logger.info("Processing: %s", ds_name)
-        all_counts[ds_name] = process_dataset(ds_name, ds_path)
+    
+    # 1. Construction-PPE (Roboflow structure)
+    cp_path = RAW_DIR / "construction-ppe"
+    if cp_path.exists():
+        logger.info("Processing: construction-ppe")
+        all_counts["construction-ppe"] = process_dataset_roboflow("construction-ppe", cp_path)
+    
+    # 2. SH17 (Flat structure)
+    sh_path = RAW_DIR / "sh17"
+    if sh_path.exists():
+        logger.info("Processing: sh17")
+        all_counts["sh17"] = process_dataset_flat("sh17", sh_path)
+
+    if not all_counts:
+        logger.error("No datasets found in data/raw/")
+        return 1
 
     print_summary(all_counts)
     ok = validate_output()
