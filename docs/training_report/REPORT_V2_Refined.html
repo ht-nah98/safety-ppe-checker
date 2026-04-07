@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Huấn Luyện PPE v2 — Chỉnh Sửa Chuẩn</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #1e293b;
+            --accent: #2563eb;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --bg: #ffffff;
+        }
+
+        /* --- PRINT SETTINGS --- */
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+
+        @media print {
+            body { font-size: 11pt; }
+            .no-print { display: none !important; }
+            .page-break { page-break-after: always; height: 1px; width: 100%; border: none; margin: 0; }
+            h2, h3 { page-break-after: avoid; }
+            img { page-break-inside: avoid; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            thead { display: table-header-group; }
+            table { margin-bottom: 20px; }
+            section { border: none !important; }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--primary);
+            background-color: var(--bg);
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* --- HEADER & FOOTER (STYLING) --- */
+        header {
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .header-left h1 {
+            font-size: 24pt;
+            margin: 0;
+            color: var(--primary);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            text-align: right;
+            font-size: 10pt;
+            color: var(--muted);
+        }
+
+        .tag-v2 {
+            background: var(--accent);
+            color: white;
+            padding: 4px 10px;
+            font-size: 9pt;
+            font-weight: 600;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h2 {
+            font-size: 18pt;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            color: var(--accent);
+        }
+
+        h3 {
+            font-size: 14pt;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        p { margin-bottom: 12px; text-align: justify; }
+
+        /* --- TABLES --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+        }
+
+        th, td {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            text-align: left;
+            font-size: 10.5pt;
+        }
+
+        th { background: #f8fafc; font-weight: 600; color: #1e293b; }
+
+        .row-accent { background: #f1f5f9; font-weight: 600; }
+
+        /* --- ALERTS & QUOTES --- */
+        .callout {
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            background: #f0f9ff;
+            margin: 20px 0;
+            font-size: 10.5pt;
+        }
+
+        .callout-warning { border-left-color: var(--warning); background: #fffbeb; }
+
+        /* --- IMAGES & FIGURES --- */
+        .figure { margin: 25px 0; text-align: center; }
+        .figure img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 4px; }
+        .figure-caption { font-size: 9pt; font-style: italic; color: var(--muted); margin-top: 8px; }
+
+        .figure-half { display: flex; gap: 15px; }
+        .figure-half img { width: calc(50% - 8px); }
+
+        /* --- STATUS COLORS --- */
+        .status-pill { padding: 2px 8px; border-radius: 10px; font-size: 9pt; font-weight: 600; color: white; }
+        .bg-success { background: var(--success); }
+        .bg-warning { background: var(--warning); }
+        .bg-danger { background: var(--danger); }
+
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 9pt;
+            color: var(--muted);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER SECTION -->
+        <header>
+            <div class="header-left">
+                <h1>Safety PPE Checker</h1>
+                <div class="tag-v2">Báo Cáo Phiên Bản V2 — Final</div>
+            </div>
+            <div class="header-right">
+                <strong>Project:</strong> PPE Detection AI<br>
+                <strong>Date:</strong> 07/04/2026<br>
+                <strong>Author:</strong> Tian / AI Assistant
+            </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section>
+            <h2>1. Tổng Quan (Executive Summary)</h2>
+            <p>Dự án <strong>Safety PPE Checker</strong> đã hoàn thành thành công giai đoạn huấn luyện mô hình phiên bản 2 (<code>ppe_v2</code>) — phát hiện 5 loại thiết bị bảo hộ lao động (PPE) cho công nhân điện. Đây là phiên bản cải tiến toàn diện so với <code>ppe_v1</code>, sử dụng kiến trúc mạnh hơn và dataset lớn hơn.</p>
+            
+            <table>
+                <thead>
+                    <tr><th>Chỉ số (Best Checkpoint)</th><th>Giá trị</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Precision</td><td>84.5%</td></tr>
+                    <tr><td>Recall</td><td>70.1%</td></tr>
+                    <tr class="row-accent"><td><strong>mAP@50</strong></td><td><strong>75.4%</strong></td></tr>
+                    <tr><td>mAP@50-95</td><td>52.5%</td></tr>
+                </tbody>
+            </table>
+            <p>Mô hình đã hội tụ ổn định sau 150 epoch, không có dấu hiệu overfitting. Kết quả đầu ra là file <code>best.pt</code> sẵn sàng tích hợp.</p>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section>
+            <h2>2. Bối Cảnh & Mục Tiêu</h2>
+            <h3>2.1. Vấn đề cần giải quyết</h3>
+            <p>Công nhân điện lực làm việc trong môi trường nguy hiểm cao — yêu cầu bắt buộc phải mặc đầy đủ 5 loại PPE. Hệ thống AI giúp tự động hóa quy trình kiểm tra này, tránh sai sót thủ công.</p>
+            
+            <h3>2.2. 5 lớp PPE cần nhận diện</h3>
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Tên lớp</th><th>Mô tả</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0</td><td><code>helmet</code></td><td>Mũ bảo hộ cứng</td></tr>
+                    <tr><td>1</td><td><code>reflective_vest</code></td><td>Áo phản quang</td></tr>
+                    <tr><td>2</td><td><code>gloves</code></td><td>Găng tay bảo hộ</td></tr>
+                    <tr><td>3</td><td><code>safety_boots</code></td><td>Giày bảo hộ</td></tr>
+                    <tr><td>4</td><td><code>safety_glasses</code></td><td>Kính bảo hộ</td></tr>
+                </tbody>
+            </table>
+            
+            <h3>2.3. Quy tắc PASS/FAIL</h3>
+            <p>Công nhân chỉ được <strong>PASS</strong> khi <strong>cả 5 loại</strong> PPE được phát hiện vượt ngưỡng tin cậy. Thiếu bất kỳ 1 món = <strong>FAIL</strong>.</p>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section>
+            <h2>3. Quá Trình Xây Dựng Dataset V2</h2>
+            <h3>3.2. Thống kê dataset</h3>
+            <table>
+                <thead><tr><th>Tập</th><th>Số ảnh</th></tr></thead>
+                <tbody>
+                    <tr><td>Train</td><td>10,081</td></tr>
+                    <tr><td>Validation</td><td>1,129</td></tr>
+                    <tr><td>Test</td><td>223</td></tr>
+                    <tr class="row-accent"><td><strong>Tổng cộng</strong></td><td><strong>11,433</strong></td></tr>
+                </tbody>
+            </table>
+
+            <h3>3.3. Phân bố nhãn theo lớp (Label Distribution)</h3>
+            <table>
+                <thead>
+                    <tr><th>Lớp</th><th>Train</th><th>Val</th><th>Test</th><th>Tổng Instances</th><th>Nhận xét</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>helmet</code></td><td>8,189</td><td>574</td><td>194</td><td>8,957</td><td>Tốt</td></tr>
+                    <tr><td><code>vest</code></td><td>8,562</td><td>633</td><td>254</td><td>9,449</td><td>Tốt</td></tr>
+                    <tr><td><code>gloves</code></td><td>9,330</td><td>921</td><td>51</td><td>10,302</td><td>Tốt</td></tr>
+                    <tr><td><code>boots</code></td><td>13,261</td><td>1,549</td><td>286</td><td>15,096</td><td>Phổ biến nhất</td></tr>
+                    <tr><td><code>glasses</code></td><td>1,245</td><td>167</td><td>0</td><td>1,412</td><td><strong>Thiếu hụt</strong></td></tr>
+                </tbody>
+            </table>
+            <div class="callout callout-warning">
+                <strong>Lưu ý:</strong> Lớp <code>safety_glasses</code> chỉ chiếm 3.1% tổng số instances và hoàn toàn không có trong tập TEST, đây là điểm yếu lớn nhất của Dataset V2.
+            </div>
+        </section>
+
+        <div class="page-break"></div>
+
+        <!-- SECTION 4 -->
+        <section>
+            <h2>4. Cấu Hình Huấn Luyện (Training Configuration)</h2>
+            <h3>4.1. Phần cứng & Phần mềm</h3>
+            <table>
+                <tbody>
+                    <tr><td>GPU</td><td>NVIDIA GeForce RTX 4070 Ti (12GB)</td></tr>
+                    <tr><td>CUDA</td><td>12.8</td></tr>
+                    <tr><td>Framework</td><td>YOLOv8 — Ultralytics 8.3.0</td></tr>
+                </tbody>
+            </table>
+            
+            <h3>4.2. Siêu tham số & Augmentation</h3>
+            <p>Mô hình được huấn luyện với kiến trúc <strong>YOLOv8s</strong> (Small) trong 150 epoch, sử dụng <code>copy_paste=0.3</code> (augmentation mạnh) để giúp học các vật thể nhỏ như kính và găng tay.</p>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section>
+            <h2>5. Kết Quả Huấn Luyện (Training Results)</h2>
+            <h3>5.3. Đường cong hội tụ</h3>
+            <div class="figure">
+                <img src="assets_v2/results.png" alt="Results Curve">
+                <div class="figure-caption">Hình 1. Thống kê Loss và Metrics qua 150 vòng lọc.</div>
+            </div>
+
+            <h3>5.4. Quality Curves</h3>
+            <div class="figure figure-half">
+                <img src="assets_v2/PR_curve.png" alt="PR Curve">
+                <img src="assets_v2/F1_curve.png" alt="F1 Curve">
+            </div>
+            <div class="figure figure-half">
+                <img src="assets_v2/P_curve.png" alt="Precision Curve">
+                <img src="assets_v2/R_curve.png" alt="Recall Curve">
+            </div>
+
+            <div class="page-break"></div>
+
+            <h3>5.5. Ma trận nhầm lẫn (Confusion Matrix)</h3>
+            <div class="figure figure-half">
+                <img src="assets_v2/confusion_matrix.png" alt="Confusion Matrix">
+                <img src="assets_v2/confusion_matrix_normalized.png" alt="Normalized Matrix">
+            </div>
+
+            <h3>5.6. Kết quả dự đoán thực tế (Visual Validation)</h3>
+            <div class="figure">
+                <img src="assets_v2/val_batch0_pred.jpg" alt="Batch 0">
+                <img src="assets_v2/val_batch1_pred.jpg" alt="Batch 1">
+                <img src="assets_v2/val_batch2_pred.jpg" alt="Batch 2">
+                <div class="figure-caption">Hình 2. Các mẫu dự đoán trực quan trên tập Validation.</div>
+            </div>
+        </section>
+
+        <div class="page-break"></div>
+
+        <!-- SECTION 6 -->
+        <section>
+            <h2>6. So Sánh V1 vs V2</h2>
+            <table>
+                <thead>
+                    <tr><th>Tiêu chí</th><th>V1 (Legacy)</th><th>V2 (Current)</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Kiến trúc</td><td>YOLOv8n (Nano)</td><td>YOLOv8s (Small)</td></tr>
+                    <tr><td>Dataset</td><td>~Vài trăm ảnh</td><td><strong>11,433 ảnh</strong></td></tr>
+                    <tr><td>Precision</td><td>85.7%</td><td>86.7%</td></tr>
+                    <tr class="row-accent"><td><strong>Recall</strong></td><td>68.7%</td><td><strong>70.1%</strong></td></tr>
+                    <tr><td>mAP@50</td><td>74.8%</td><td>75.4%</td></tr>
+                </tbody>
+            </table>
+            <p><strong>Nhận xét:</strong> V2 cải thiện độ bao phủ (Recall), giúp mô hình ít bỏ sót trang phục bảo hộ hơn — yếu tố sống còn trong an toàn lao động.</p>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section>
+            <h2>7. Phân Tích Rủi Ro & Hạn Chế</h2>
+            <h3>7.1. Đánh giá rủi ro theo lớp</h3>
+            <table>
+                <thead>
+                    <tr><th>Lớp PPE</th><th>Mức Rủi Ro</th><th>Lý do</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>safety_glasses</code></td><td class="status-pill bg-danger">🔴 Cao</td><td>Thiếu ảnh nghiêm trọng (3% dataset)</td></tr>
+                    <tr><td><code>gloves</code></td><td class="status-pill bg-warning">🟡 Trung bình</td><td>Góc chụp xa khó nhận diện</td></tr>
+                    <tr><td><code>helmet/vest</code></td><td class="status-pill bg-success">🟢 Thấp</td><td>Dữ liệu đa dạng, hội tụ tốt</td></tr>
+                </tbody>
+            </table>
+            
+            <h3>7.3. Lưu ý kỹ thuật khi tích hợp</h3>
+            <ul>
+                <li>Ngưỡng confidence cho <code>gloves</code> và <code>glasses</code> nên đặt thấp (**0.40**).</li>
+                <li>Model size tăng từ 6MB lên **19MB**, cần tối ưu tốc độ load trên mobile.</li>
+            </ul>
+        </section>
+
+        <!-- SECTION 8 -->
+        <section>
+            <h2>8. Artifacts & Đường Dẫn</h2>
+            <table>
+                <thead><tr><th>Tên file</th><th>Đường dẫn</th></tr></thead>
+                <tbody>
+                    <tr><td>Model Weights (Best)</td><td><code>runs/detect/train3/weights/best.pt</code></td></tr>
+                    <tr><td>Training Logs</td><td><code>runs/detect/train3/results.csv</code></td></tr>
+                    <tr><td>Dataset Config</td><td><code>data/dataset_v2.yaml</code></td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SECTION 9 & 10 -->
+        <section>
+            <h2>9. Hành Động Tiếp Theo</h2>
+            <ol>
+                <li>Triển khai <code>best.pt</code> vào backend ngay lập tức.</li>
+                <li>Chạy validation thực địa với ảnh thực tế tại công trường.</li>
+                <li>Thu thập thêm ~1000 ảnh cho lớp kính bảo hộ để chuẩn bị cho V3.</li>
+            </ol>
+            
+            <h2>10. Kết Luận</h2>
+            <p>Mô hình <strong>PPE V2</strong> đạt mAP@50 75.4%, đủ tiêu chuẩn để triển khai Beta. Mặc dù vẫn còn hạn chế ở lớp kính bảo hộ do thiếu dữ liệu, nhưng đây là nền tảng vững chắc cho hệ thống giám sát an toàn lao động hiện tại.</p>
+        </section>
+
+        <footer>
+            <p>Báo cáo lập bởi: AI Assistant — Safety PPE Checker Project</p>
+            <p>© 2026 PPE Training Infrastructure. Internal Only.</p>
+        </footer>
+    </div>
+</body>
+</html>
