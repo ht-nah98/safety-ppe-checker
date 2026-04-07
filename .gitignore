@@ -69,3 +69,4 @@ runs/
 data/
 ppe_training_dataset.zip
 ppe_training_dataset/
+.omc/
